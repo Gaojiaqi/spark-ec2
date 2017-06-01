@@ -134,4 +134,13 @@ mkdir /tmp/spark-events
 sbt/sbt clean assembly
 /root/spark-ec2/copy-dir /root/ml-matrix
 
+~/spark/sbin/slaves.sh rm /etc/ld.so.conf.d/atlas-x86_64.conf
+~/spark/sbin/slaves.sh ldconfig
+~/spark/sbin/slaves.sh ln -sf /root/openblas-install/lib/libblas.so.3 /usr/lib64/liblapack.so.3
+~/spark/sbin/slaves.sh ln -sf /root/openblas-install/lib/libblas.so.3 /usr/lib64/libblas.so.3
+rm -f /etc/ld.so.conf.d/atlas-x86_64.conf
+ldconfig
+ln -sf /root/openblas-install/lib/libblas.so.3 /usr/lib64/liblapack.so.3
+ln -sf /root/openblas-install/lib/libblas.so.3 /usr/lib64/libblas.so.3
+
 popd > /dev/null
