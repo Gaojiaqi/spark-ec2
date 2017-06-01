@@ -114,4 +114,15 @@ for module in $MODULES; do
   cd /root/spark-ec2  # guard against setup.sh changing the cwd
 done
 
+cd /root/
+git clone https://github.com/shivaram/matrix-bench.git; cd matrix-bench
+./setup-ec2.sh
+/root/spark-ec2/copy-dir /root/openblas-install
+cd /root/
+
+git clone https://github.com/Gaojiaqi/ml-matrix.git; cd ml-matrix;
+mkdir /tmp/spark-events
+sbt/sbt clean assembly
+/root/spark-ec2/copy-dir /root/ml-matrix
+
 popd > /dev/null

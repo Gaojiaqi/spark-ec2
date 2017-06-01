@@ -1,4 +1,6 @@
 *.py[cod]
+cluster
+*.pem
 
 # C extensions
 *.so
