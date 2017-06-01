@@ -115,6 +115,15 @@ for module in $MODULES; do
 done
 
 cd /root/
+wget https://launchpad.net/byobu/trunk/5.117/+download/byobu_5.117.orig.tar.gz
+tar zxvf byobu_5.117.orig.tar.gz
+rm byobu_5.117.orig.tar.gz
+cd byobu-5.117
+./configure
+sudo make install
+cd /root/
+
+cd /root/
 git clone https://github.com/shivaram/matrix-bench.git; cd matrix-bench
 ./setup-ec2.sh
 /root/spark-ec2/copy-dir /root/openblas-install
