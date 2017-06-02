@@ -27,7 +27,21 @@ instance_type=$(curl http://169.254.169.254/latest/meta-data/instance-type 2> /d
 
 echo "Setting up slave on `hostname`... of type $instance_type"
 
-if [[ $instance_type == r4* ||$instance_type == r3* || $instance_type == i2* || $instance_type == hi1* ]]; then
+# in r4 type the new disk is mounted on sds
+if [[ $instance_type == r4* ]]; then
+  # Format & mount using ext4, which has the best performance among ext3, ext4, and xfs based
+  # on our shuffle heavy benchmark
+  EXT4_MOUNT_OPTS="defaults,noatime"
+  rm -rf /mnt*
+  mkdir /mnt
+  # To turn TRIM support on, uncomment the following line.
+  #echo '/dev/sdb /mnt  ext4  defaults,noatime,discard 0 0' >> /etc/fstab
+  mkfs.ext4 -E lazy_itable_init=0,lazy_journal_init=0 /dev/sds
+  mount -o $EXT4_MOUNT_OPTS /dev/sds /mnt
+fi
+
+
+if [[ $instance_type == r3* || $instance_type == i2* || $instance_type == hi1* ]]; then
   # Format & mount using ext4, which has the best performance among ext3, ext4, and xfs based
   # on our shuffle heavy benchmark
   EXT4_MOUNT_OPTS="defaults,noatime"
