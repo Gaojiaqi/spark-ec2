@@ -27,7 +27,7 @@ instance_type=$(curl http://169.254.169.254/latest/meta-data/instance-type 2> /d
 
 echo "Setting up slave on `hostname`... of type $instance_type"
 
-if [[ $instance_type == r3* || $instance_type == i2* || $instance_type == hi1* ]]; then
+if [[ $instance_type == r4* ||$instance_type == r3* || $instance_type == i2* || $instance_type == hi1* ]]; then
   # Format & mount using ext4, which has the best performance among ext3, ext4, and xfs based
   # on our shuffle heavy benchmark
   EXT4_MOUNT_OPTS="defaults,noatime"
