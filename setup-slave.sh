@@ -143,6 +143,27 @@ chmod a+x /usr/bin/realpath
 
 popd > /dev/null
 
+sudo yum -y update
+sudo yum -y install git gcc make
+cd /root/
+git clone https://github.com/esnet/iperf
+cd iperf
+./configure
+sudo make
+sudo make install
+sudo ldconfig
+
+sudo ln -sf /usr/bin/python2.7 /usr/bin/python
+
+cd /root/
+wget https://launchpad.net/byobu/trunk/5.117/+download/byobu_5.117.orig.tar.gz
+tar zxvf byobu_5.117.orig.tar.gz
+rm byobu_5.117.orig.tar.gz
+cd byobu-5.117
+./configure
+sudo make install
+cd /root/
+
 # this is to set the ulimit for root and other users
 echo '* soft nofile 1000000' >> /etc/security/limits.conf
 echo '* hard nofile 1000000' >> /etc/security/limits.conf

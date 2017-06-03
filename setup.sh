@@ -115,15 +115,6 @@ for module in $MODULES; do
 done
 
 cd /root/
-wget https://launchpad.net/byobu/trunk/5.117/+download/byobu_5.117.orig.tar.gz
-tar zxvf byobu_5.117.orig.tar.gz
-rm byobu_5.117.orig.tar.gz
-cd byobu-5.117
-./configure
-sudo make install
-cd /root/
-
-cd /root/
 git clone https://github.com/shivaram/matrix-bench.git; cd matrix-bench
 ./setup-ec2.sh
 /root/spark-ec2/copy-dir /root/openblas-install
@@ -146,6 +137,5 @@ ln -sf /root/openblas-install/lib/libblas.so.3 /usr/lib64/libblas.so.3
 echo "export OMP_NUM_THREADS=1" >> /root/spark/conf/spark-env.sh
 perl -pi -e 's/\/root\/ephemeral-hdfs\/conf/\/root\/ml-matrix\/target\/scala-2.11\/mlmatrix-assembly-0.2.jar:\/root\/ephemeral-hdfs\/conf/g' /root/spark/conf/spark-defaults.conf
 echo "alias ls='ls --color=auto'" >> /root/.bashrc
-sudo ln -sf /usr/bin/python2.7 /usr/bin/python
 
 popd > /dev/null
