@@ -143,4 +143,9 @@ ldconfig
 ln -sf /root/openblas-install/lib/libblas.so.3 /usr/lib64/liblapack.so.3
 ln -sf /root/openblas-install/lib/libblas.so.3 /usr/lib64/libblas.so.3
 
+echo "export OMP_NUM_THREADS=1" >> /root/spark/conf/spark-env.sh
+perl -pi -e 's/\/root\/ephemeral-hdfs\/conf/\/root\/ml-matrix\/target\/scala-2.11\/mlmatrix-assembly-0.2.jar:\/root\/ephemeral-hdfs\/conf/g' /root/spark/conf/spark-defaults.conf
+echo "alias ls='ls --color=auto'" >> /root/.bashrc
+sudo ln -sf /usr/bin/python2.7 /usr/bin/python
+
 popd > /dev/null
