@@ -8,7 +8,7 @@ def get_master():
 
 master_ip = get_master()
 
-ret = subprocess.check_output(['iperf3', '-c', master_ip, '-i', '1', '-p', '80', '-t', '5'])
+ret = subprocess.check_output(['iperf3', '-c', master_ip, '-i', '1', '-p', '80', '-t', '5', '-f', 'g'])
 send_speed = ret.strip().split('\n')[-4]
 recv_speed = ret.strip().split('\n')[-3]
 

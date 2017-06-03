@@ -7,7 +7,6 @@ def get_slaves():
     return slaves.strip().split('\n')
 
 slaves = get_slaves()
-slaves = ['172.31.25.9']
 
 iperf_master = subprocess.Popen(['iperf3', '-s', '-p', '80'])
 iperf_slaves = []
