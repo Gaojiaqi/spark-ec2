@@ -14,7 +14,7 @@ def get_master():
 
 def check_spark_running():
     processes = subprocess.check_output(['ps', 'aux'])
-    a = filter(lambda x : x.find('ml-matrix') > 0, processes.strip().split('\n')) 
+    a = filter(lambda x : x.find('ml-matrix') > 0, processes.strip().split('\n'))
     return len(a)
 
 slaves = get_slaves()

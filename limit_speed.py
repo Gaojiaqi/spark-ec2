@@ -7,7 +7,7 @@ def get_slaves():
     return slaves.strip().split('\n')
 
 slaves = get_slaves()
-speed = '1.1Gbit'
+speed = sys.argv[1] + 'Gbit'
 
 commands = ["tc qdisc del dev eth0 root".split(' '),
             "tc qdisc add dev eth0 handle 1: root htb default 11".split(' '),
