@@ -23,6 +23,9 @@ print "master ip", master
 print "slaves ip", slaves
 sshs = []
 
+rowsPerBlock = sys.argv[1]
+numRowBlocks = sys.argv[2]
+
 command = "tcpdump -ieth0 -s96 -w traffic.dump 'tcp'"
 
 for slave in slaves:
@@ -30,7 +33,7 @@ for slave in slaves:
 
 subprocess.Popen(["tcpdump", "-ieth0", "-s96", "-w", "/root/traffic.dump", "tcp"])
 
-subprocess.Popen("/root/spark/bin/spark-submit --class edu.berkeley.cs.amplab.mlmatrix.BlockCoordinateDescent --driver-memory 20G --driver-class-path /root/ml-matrix/target/scala-2.11/mlmatrix-assembly-0.2.jar /root/ml-matrix/target/scala-2.11/mlmatrix-assembly-0.2.jar".split(' ') + ["spark://"+master+":7077"] + "4096 16 4096 5 1".split(' '))
+subprocess.Popen("/root/spark/bin/spark-submit --class edu.berkeley.cs.amplab.mlmatrix.BlockCoordinateDescent --driver-memory 20G --driver-class-path /root/ml-matrix/target/scala-2.11/mlmatrix-assembly-0.2.jar /root/ml-matrix/target/scala-2.11/mlmatrix-assembly-0.2.jar".split(' ') + ["spark://"+master+":7077"] + [rowsPerBlock, numRowBlocks] + "4096 5 1".split(' '))
 
 try:
     counter = 0
