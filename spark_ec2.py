@@ -1483,6 +1483,10 @@ def real_main():
             subprocess.check_call(
                 ssh_command(opts) + proxy_opt + ['-t', '-t', "%s@%s" % (opts.user, master)])
 
+    elif action == "get-master-ip":
+        (master_nodes, slave_nodes) = get_existing_cluster(conn, opts, cluster_name)
+        print(get_dns_name(master_nodes[0], opts.private_ips))
+
     elif action == "reboot-slaves":
         response = raw_input(
             "Are you sure you want to reboot the cluster " +

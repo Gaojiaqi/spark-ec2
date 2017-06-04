@@ -144,7 +144,7 @@ chmod a+x /usr/bin/realpath
 popd > /dev/null
 
 sudo yum -y update
-sudo yum -y install git gcc make
+sudo yum -y install git gcc make gcc-gfortran
 cd /root/
 git clone https://github.com/esnet/iperf
 cd iperf
