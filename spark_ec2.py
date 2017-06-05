@@ -1412,7 +1412,8 @@ def real_main():
             print("ALL DATA ON ALL NODES WILL BE LOST!!")
 
         msg = "Are you sure you want to destroy the cluster {c}? (y/N) ".format(c=cluster_name)
-        response = raw_input(msg)
+        #response = raw_input(msg)
+        response = "y"
         if response == "y":
             print("Terminating master...")
             for inst in master_nodes:
