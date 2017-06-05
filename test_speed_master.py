@@ -17,7 +17,11 @@ for slave in slaves:
 iperf_slaves = []
 
 for slave in slaves:
-    iperf_master = subprocess.Popen(['ssh', slave, 'iperf3', '-s', '-p', '80'])
+    try:
+        iperf_master = subprocess.Popen(['ssh', slave, 'iperf3', '-s', '-p', '80'])
+    except:
+        subprocess.call(['ssh', slave, 'killall', 'iperf3'])
+        iperf_master = subprocess.Popen(['ssh', slave, 'iperf3', '-s', '-p', '80'])
     for other_slave in slaves:
         if slave == other_slave:
             continue
