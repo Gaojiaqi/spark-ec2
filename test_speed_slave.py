@@ -7,9 +7,8 @@ def get_master():
     return master
 
 master_ip = get_master()
-master_ip = sys.argv[1]
 
-ret = subprocess.check_output(['iperf3', '-c', master_ip, '-i', '1', '-p', '80', '-t', '3', '-f', 'g'])
+ret = subprocess.check_output(['iperf3', '-c', master_ip, '-i', '1', '-p', '6789', '-t', '3', '-f', 'g'])
 send_speed = ret.strip().split('\n')[-4]
 recv_speed = ret.strip().split('\n')[-3]
 
