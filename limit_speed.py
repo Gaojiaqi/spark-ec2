@@ -9,10 +9,13 @@ def get_slaves():
 slaves = get_slaves()
 speed = sys.argv[1] + 'Gbit'
 
-commands = ["tc qdisc del dev eth0 root".split(' '),
-            "tc qdisc add dev eth0 handle 1: root htb default 11".split(' '),
-            "tc class add dev eth0 parent 1: classid 1:1 htb rate 1250Mbps".split(' '),
-            ("tc class add dev eth0 parent 1:1 classid 1:11 htb rate " + speed).split(' ')]
+if speed == '0Gbit':
+    commands = ["tc qdisc del dev eth0 root".split(' ')]
+else:
+    commands = ["tc qdisc del dev eth0 root".split(' '),
+                "tc qdisc add dev eth0 handle 1: root htb default 11".split(' '),
+                "tc class add dev eth0 parent 1: classid 1:1 htb rate 1250Mbps".split(' '),
+                ("tc class add dev eth0 parent 1:1 classid 1:11 htb rate " + speed).split(' ')]
 
 for command in commands:
     subprocess.call(command)
