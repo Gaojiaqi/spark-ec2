@@ -25,15 +25,17 @@ sshs = []
 
 rowsPerBlock = sys.argv[1]
 numRowBlocks = sys.argv[2]
+numLambda = sys.argv[3]
+numClasses = sys.argv[4]
 
-command = "tcpdump -ieth0 -s96 -w traffic.dump 'tcp'"
+command = "tcpdump -ieth0 -s96 -w /tmp/traffic.dump 'tcp'"
 
 for slave in slaves:
     sshs.append(subprocess.Popen(["ssh", slave, command]))
 
-subprocess.Popen(["tcpdump", "-ieth0", "-s96", "-w", "/root/traffic.dump", "tcp"])
+subprocess.Popen(["tcpdump", "-ieth0", "-s96", "-w", "/tmp/traffic.dump", "tcp"])
 
-subprocess.Popen("/root/spark/bin/spark-submit --class edu.berkeley.cs.amplab.mlmatrix.BlockCoordinateDescent --driver-memory 20G --driver-class-path /root/ml-matrix/target/scala-2.11/mlmatrix-assembly-0.2.jar /root/ml-matrix/target/scala-2.11/mlmatrix-assembly-0.2.jar".split(' ') + ["spark://"+master+":7077"] + [rowsPerBlock, numRowBlocks] + "4096 5 1".split(' '))
+subprocess.Popen("/root/spark/bin/spark-submit --class edu.berkeley.cs.amplab.mlmatrix.BlockCoordinateDescent --driver-memory 20G --driver-class-path /root/ml-matrix/target/scala-2.11/mlmatrix-assembly-0.2.jar /root/ml-matrix/target/scala-2.11/mlmatrix-assembly-0.2.jar".split(' ') + ["spark://"+master+":7077"] + [rowsPerBlock, numRowBlocks] + "4096 5 1".split(' ') + [numLambda, numClasses])
 
 try:
     counter = 0
@@ -55,5 +57,5 @@ for slave in slaves:
 subprocess.call(["killall", "tcpdump"])
 
 for idx, slave in enumerate(slaves):
-    subprocess.call(["scp", slave+":~/traffic.dump", "/root/traffic_%d.dump" % idx])
+    subprocess.call(["scp", slave+":/tmp/traffic.dump", "/tmp/traffic_%d.dump" % idx])
     subprocess.call(["ssh", slave, "rm", "traffic.dump"])
