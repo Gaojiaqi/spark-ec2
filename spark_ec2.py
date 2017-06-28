@@ -479,6 +479,13 @@ def get_tachyon_version(spark_version):
 
 # Attempt to resolve an appropriate AMI given the architecture and region of the request.
 def get_spark_ami(opts):
+    ami_dic = {"us-east-1": 'ami-20631a36',
+               "us-east-2": 'ami-a5b196c0',
+               "us-west-1": 'ami-9fe6c7ff',
+               "us-west-2": 'ami-45224425',
+              }
+    return ami_dic[opts.region]
+    '''
     if opts.instance_type in EC2_INSTANCE_TYPES:
         instance_type = EC2_INSTANCE_TYPES[opts.instance_type]
     else:
@@ -500,6 +507,7 @@ def get_spark_ami(opts):
 
     print("Spark AMI: " + ami)
     return ami
+    '''
 
 
 # Launch a cluster of the given name, by setting up its security groups,
@@ -623,6 +631,13 @@ def launch_cluster(conn, opts, cluster_name):
             device.delete_on_termination = True
             block_map["/dev/sd" + chr(ord('s') + i)] = device
 
+    # Set root disk size
+    dev_sda1 = EBSBlockDeviceType()
+    dev_sda1.size = 50
+    dev_sda1.delete_on_termination = True
+    dev_sda1.volume_type = opts.ebs_vol_type
+    block_map['/dev/sda1'] = dev_sda1
+
     # AWS ignores the AMI-specified block device mapping for M3 (see SPARK-3342).
     if opts.instance_type.startswith('m3.'):
         for i in range(get_num_disks(opts.instance_type)):
@@ -726,7 +741,7 @@ def launch_cluster(conn, opts, cluster_name):
     if existing_masters:
         print("Starting master...")
         for inst in existing_masters:
-            if inst.state not in ["shutting-down", "terminated"]:
+            if inst.state not in ["shutting-down", "terminated", "running"]:
                 inst.start()
         master_nodes = existing_masters
     else:
@@ -846,63 +861,15 @@ def setup_cluster(conn, master_nodes, slave_nodes, opts, deploy_ssh_key):
             print(slave_address)
             ssh_write(slave_address, opts, ['tar', 'x'], dot_ssh_tar)
 
-    modules = ['spark', 'ephemeral-hdfs', 'persistent-hdfs',
-               'mapreduce', 'spark-standalone', 'tachyon', 'rstudio']
-
-    if opts.hadoop_major_version == "1":
-        modules = list(filter(lambda x: x != "mapreduce", modules))
-
-    if opts.ganglia:
-        modules.append('ganglia')
-
-    # Clear SPARK_WORKER_INSTANCES if running on YARN
-    if opts.hadoop_major_version == "yarn":
-        opts.worker_instances = ""
-
-    # NOTE: We should clone the repository before running deploy_files to
-    # prevent ec2-variables.sh from being overwritten
-    print("Cloning spark-ec2 scripts from {r}/tree/{b} on master...".format(
-        r=opts.spark_ec2_git_repo, b=opts.spark_ec2_git_branch))
-    ssh(
-        host=master,
-        opts=opts,
-        command="rm -rf spark-ec2"
-        + " && "
-        + "git clone {r} -b {b} spark-ec2".format(r=opts.spark_ec2_git_repo,
-                                                  b=opts.spark_ec2_git_branch)
-    )
-
-    print("Deploying files to master...")
-    deploy_files(
-        conn=conn,
-        root_dir=SPARK_EC2_DIR + "/" + "deploy.generic",
-        opts=opts,
-        master_nodes=master_nodes,
-        slave_nodes=slave_nodes,
-        modules=modules
-    )
-
-    if opts.deploy_root_dir is not None:
-        print("Deploying {s} to master...".format(s=opts.deploy_root_dir))
-        deploy_user_files(
-            root_dir=opts.deploy_root_dir,
-            opts=opts,
-            master_nodes=master_nodes
-        )
-
     print("Running setup on master...")
-    setup_spark_cluster(master, opts)
+    #setup_spark_cluster(master, opts)
     print("Done!")
 
 
 def setup_spark_cluster(master, opts):
-    ssh(master, opts, "chmod u+x spark-ec2/setup.sh")
-    ssh(master, opts, "spark-ec2/setup.sh")
-    print("Spark standalone cluster started at http://%s:8080" % master)
-
-    if opts.ganglia:
-        print("Ganglia started at http://%s:5080/ganglia" % master)
-
+    subprocess.check_call(['scp', '-i', 'spark-ec2.pem', 'setup.sh', 'ubuntu@'+master+':~/'])
+    ssh(master, opts, "chmod u+x setup.sh")
+    ssh(master, opts, "setup.sh")
 
 def is_ssh_available(host, opts, print_ssh_output=True):
     """
@@ -1417,9 +1384,9 @@ def real_main():
         #response = raw_input(msg)
         response = "y"
         if response == "y":
-            print("Terminating master...")
-            for inst in master_nodes:
-                inst.terminate()
+            #print("Terminating master...")
+            #for inst in master_nodes:
+            #    inst.terminate()
             print("Terminating slaves...")
             for inst in slave_nodes:
                 inst.terminate()
@@ -1489,6 +1456,11 @@ def real_main():
     elif action == "get-master-ip":
         (master_nodes, slave_nodes) = get_existing_cluster(conn, opts, cluster_name)
         print(get_dns_name(master_nodes[0], opts.private_ips))
+
+    elif action == "get-slave-ip":
+        (master_nodes, slave_nodes) = get_existing_cluster(conn, opts, cluster_name)
+        for slave_node in slave_nodes:
+            print(get_dns_name(slave_node, opts.private_ips))
 
     elif action == "reboot-slaves":
         response = raw_input(
